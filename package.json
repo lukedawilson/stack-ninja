@@ -1,0 +1,28 @@
+{
+  "name": "stack.ninja",
+  "version": "0.0.1",
+  "description": "Find relevant questions on Stack Exchange.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/lukedawilson/stack.ninja.git"
+  },
+  "keywords": [
+    "stack",
+    "exchange",
+    "questions",
+    "ninja"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lukedawilson/stack.ninja/issues"
+  },
+  "homepage": "https://github.com/lukedawilson/stack.ninja",
+  "dependencies": {
+    "node-neo4j": "^2.0.0-RC6"
+  }
+}
