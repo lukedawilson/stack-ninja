@@ -18,6 +18,10 @@ app2.get('/', function (req, res) {
 	console.log(req.originalUrl);
 	indexController.index(req,res);
 });
+app2.post('/fetch', function (req, res) {
+	console.log(req.originalUrl);
+	indexController.fetch(req,res);
+});
 
 app2.listen(4000);
 console.log('listening on 4000...');
