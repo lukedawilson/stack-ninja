@@ -11,3 +11,12 @@ app.delete('/node/:id', importer.delete);
 
 app.listen(4001);
 console.log('listening on 4001...');
+
+var webapp = express();
+webapp.get('/', function (req, res) {
+	console.log(req.originalUrl);
+	res.send('Hello world');
+});
+
+webapp.listen(4000);
+console.log('listening on 4000...');
