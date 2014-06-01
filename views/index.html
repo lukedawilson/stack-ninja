@@ -1,8 +1,17 @@
 <html>
 	<head>
-		<title>Hello {{name}}</title>
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+		<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+		<title>Stack Tips</title>
 	</head>
 	<body>
-		<marquee>Hello {{name}}!</marquee>
+		<div class="container">
+			<h1>Stack Tips</h1>
+			<p>Enter your SuperUser user id and let us find a good question for you to answer</p>
+			<p>User Id: <input type="text" id="user_id" /></p>
+			<p><input type="button" value="Get me a question already!" /></p>
+			<div id="target"></div>
+		</div>
 	</body>
 </html>
