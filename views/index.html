@@ -1,0 +1,34 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<script>
+			$(document).ready(function(){
+				$('#get_me').on('click', function(){
+					var idToFetch = $('#user_id').val();
+					$.post('/fetch', { id: idToFetch })
+					 .done( function(data){
+						$('#target').html(data);
+					});
+				});
+			});
+		</script>
+		<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+		<title>Stack Tips</title>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Stack Tips</h1>
+			<p>Enter your Ask Ubuntu user id and let us find a good question for you to answer</p>
+			<form class="form-inline" role="form">
+  				<div class="form-group">
+    				<label class="sr-only" for="user_id">User Id</label>
+    				<input type="text" class="form-control" id="user_id" placeholder="Enter your user id on Ask Ubuntu...">
+  				</div>
+				<button type="button" id="get_me" class="btn btn-default">Get me a question already!</button>
+			</form>
+			<div id="target"></div>
+		</div>
+	</body>
+</html>
