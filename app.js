@@ -1,4 +1,5 @@
 var importer = require('./importer');
+var indexController = require('./index_controller');
 var express = require('express');
 var bodyParser = require('body-parser');
 
@@ -12,11 +13,11 @@ app.delete('/node/:id', importer.delete);
 app.listen(4001);
 console.log('listening on 4001...');
 
-var webapp = express();
-webapp.get('/', function (req, res) {
+var app2 = express();
+app2.get('/', function (req, res) {
 	console.log(req.originalUrl);
-	res.send('Hello world');
+	indexController.index(req,res);
 });
 
-webapp.listen(4000);
+app2.listen(4000);
 console.log('listening on 4000...');
