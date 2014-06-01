@@ -21,4 +21,11 @@ app.post('/node', function(req, res) {
 	});
 });
 
+app.delete('/node/:id', function(req, res) {
+	db.deleteNode(req.params['id'], function(err, node) {
+		if(err) res.send(500);
+    	res.send(200);
+    });
+});
+
 app.listen(4001);
