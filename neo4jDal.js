@@ -1,63 +1,114 @@
-var neo4j = require('node-neo4j');
-var async = require('async')
+var neo4j = require('node-neo4j'),
+  asyncq = require('async-q'),
+  Q = require('q'),
+  db = new neo4j();
 
-var db = new neo4j('http://192.168.63.4:7474');
+var data = {
+  post: {
+    id: 2,
+    name: "Luca"
+  },
+  tags: ["python", "linux"]
+};
 
-var data = 
-	{
-		post: {
-			id: 2,
-			name: "Luca"
-		},
-		tags: ["python", "linux"]
-	};
+var datas = [
+  data,
+  {
+    post: {
+      id: 3,
+      name: "Marco"
+    },
+    tags: ["python", "linux", "C#"]
+  }
+];
 
-//sync(db, 'insertNode');
+db.createUniquenessContstraint('Post', 'id', function (err, result) { console.log(result); });
 
-var handleTags = function(tags, fn, callback) {
-	async.map(tags, fn, callback);
-}
+var insertPost = function (post) {
+  var defer = Q.defer();
 
-var handleData = function(data, callback) {
-	db.insertNode(data.post, callback);
-}
+  db.insertNode(post, 'Post', function (err, val) {
+    if (err) {
+      return defer.reject(err);
+    }
+    return defer.resolve(val);
+  });
 
-var upsertTag = function(tag, callback) {
-	db.cypherQuery(
-		'MERGE(x {type: {type}, name: {name} }) RETURN x',
-		{ type: "tag", name: tag },
-		function(err, data) {
-			if (err) return callback(err);
-			return callback(null, data.data[0]._id);
-		});
-}
+  return defer.promise;
+};
 
-var createLink = function(node_id, tag_id, callback) {
-	console.log(node_id);
-	console.log(tag_id);
-	db.insertRelationship(
-		node_id, tag_id, 'RELATIONSHIP_TYPE', {name:tag_id}, function(err, rel) {
-			if (err) return callback(err);
-			//console.log(rel);
-			return callback();
-		});
-}
 
-var createLinks = function(tag_ids, fn, callback) {
-	async.each(tag_ids, fn, callback);
-}
+var upsertTag = function (tag_name) {
+  var defer = Q.defer(),
+    tag = {name: tag_name};
 
-handleData(data, function(err, node) {
-	handleTags(data.tags, upsertTag, function(err, tag_ids) {
-		if (err) throw err;
-		createLinks(tag_ids, 
-			function(id, callback) {
-		    	//console.log(id);
-				createLink(node.id, id, callback);
-		 	}, 
-			function(err) {
-				//if (err) console.log(err);
-				//else console.log(node._id);
-			});
-	});
-});
+  db.cypherQuery('MERGE(tag: Tag { name: {name} }) RETURN tag', tag,
+    function (err, result) {
+      if (err) { return defer.reject(err); }
+
+      if (result.data.length > 1) {
+        return defer.reject("Too many node founded, this shoudn't happend, something is going wrong");
+      }
+
+      return defer.resolve(result.data[0]);
+    });
+
+  return defer.promise;
+};
+
+var upsertTags = function (tags) {
+  return asyncq.map(tags, upsertTag);
+};
+
+var createRelation = function (post) {
+  return function (tag) {
+    var defer = Q.defer();
+
+    db.insertRelationship(post._id, tag._id, 'Tagged', {}, function (err, rel) {
+      if (err) { return defer.reject(err); }
+
+      return defer.resolve(rel);
+    });
+
+    return defer.promise;
+  };
+};
+
+var insertData = function (data) {
+  var postAndTags = {
+    post: function () { return insertPost(data.post); },
+    tags: function () { return upsertTags(data.tags); }
+  };
+  return asyncq.parallel(postAndTags);
+};
+
+var createRelations = function (postAndTags) {
+  return asyncq.each(postAndTags.tags, createRelation(postAndTags.post));
+};
+
+var handleData = function (data) {
+  return asyncq.waterfall([
+    function () { return Q.when(data); },
+    insertData,
+    createRelations
+  ]);
+};
+
+var handleDatas = function (datas) {
+  return asyncq.each(datas, handleData);
+};
+
+var main = function () {
+  handleDatas(datas)
+    .then(
+      function (result) {
+        console.log(result);
+      },
+      function (err) {
+        console.log(err);
+      }
+    );
+};
+
+main();
+
